@@ -1,0 +1,322 @@
+.container_box {
+    border-radius: 10px;
+    border-top: 3px solid #4363EC;
+    background: #FFF;
+    box-shadow: 0px 0px 15px 0px rgba(202, 209, 242, 0.22);
+    max-width: 756px;
+    height: 504px;
+    flex-shrink: 0;
+    padding-top: 15px;
+}
+
+.vote_page_title {
+    color: #4363EC;
+    font-family: Rajdhani;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px;
+    /* 100% */
+}
+
+.Make_a {
+    color: #000;
+    font-family: Rajdhani;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    /* 75% */
+}
+
+.option-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #4363EC;
+    background: #FFF;
+    padding: 10px;
+}
+
+.option-number {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #4363EC;
+    color: #FFF;
+    text-align: center;
+    font-family: Rajdhani;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 26px;
+    margin-right: 10px;
+}
+
+.option-label {
+    color: #535974;
+    font-family: Rajdhani;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    flex-grow: 1;
+}
+
+.option-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #4363EC;
+    background: #FFF;
+    padding: 10px;
+}
+
+.option-number {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #4363EC;
+    color: #FFF;
+    text-align: center;
+    font-family: Rajdhani;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 26px;
+    margin-right: 10px;
+}
+
+.option-label {
+    color: #535974;
+    font-family: Rajdhani;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    flex-grow: 1;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    color: #535974;
+    font-family: Rajdhani;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    text-transform: capitalize;
+}
+
+.checkbox-label input[type="radio"] {
+    display: none;
+}
+
+.checkbox-label .checkbox-icon {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #4363EC;
+    background-color: #FFF;
+}
+
+.checkbox-label input[type="radio"]:checked+.checkbox-icon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #0FA31E;
+    display: block;
+    color: #0FA31E;
+    font-family: Font Awesome 6 Free;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 20px;
+    /* 100% */
+    text-transform: capitalize;
+}
+
+.sheare_link {
+    color: #4363EC;
+    font-family: Rajdhani;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.inline-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vote_page_count,
+.vote_page_counts {
+    color: #222A46;
+    font-family: Rajdhani;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 28px;
+    /* 155.556% */
+}
+
+.vote_page_title_vote_page_count {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vote_page_title,
+.vote_page_count {
+    margin-right: 10px;
+}
+
+.vote_page_counts {
+    display: inline;
+    margin-right: 10px;
+}
+
+.vote_percentage {
+    display: inline;
+    text-align: right;
+}
+
+.vote_result_row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.vote_page_counts {
+    margin: 0;
+}
+
+.vote_percentage {
+    justify-self: end;
+}
+
+/* Custom CSS for the slider container */
+.custom-range-container {
+    width: 100%;
+    height: 20px;
+    background-color: #FFF;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid #DCE0F4;
+}
+
+/* Custom CSS for the filled part of the slider */
+.custom-range-fill {
+    height: 100%;
+    border-radius: 10px;
+
+}
+
+/* Background colors for each difficulty level */
+.super-easy .custom-range-fill {
+    background: #4BC0C0;
+}
+
+.somewhat-easy .custom-range-fill {
+    background: #FFCD56;
+}
+
+.moderate .custom-range-fill {
+    background: #FF6384;
+}
+
+.quite-difficult .custom-range-fill {
+    background: #FF9F40;
+}
+
+.vote_percentage {
+    color: #4363EC;
+    text-align: right;
+    font-family: Rajdhani;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 22px;
+    /* 137.5% */
+}
+
+.circle {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    background: conic-gradient(#4BC0C0 0% 40%,
+            /* 40% - #4BC0C0 color */
+            #FFCD56 40% 70%,
+            /* 30% - #4BC0C0 color */
+            #FF6384 70% 90%,
+            /* 20% - #FF6384 color */
+            #FF9F40 90% 100%
+            /* 10% - #FF9F40 color */
+        );
+}
+
+.col_chart {
+    display: flex;
+    flex-direction: column;   /* Set the height of the column to occupy the full viewport height */
+}
+
+.col_chart_ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+.col_chart_li {
+    display: flex;
+    align-items: center;
+    margin: 8px;
+    font-size: 18px;
+}
+
+.bi {
+    margin-right: 8px;
+}
+
+.col_criclr {
+    display: inline-flex;
+    align-items: center;
+    /* Center the circle vertically */
+}
+
+.icon_chart_Super {
+    color: #4BC0C0;
+}
+
+.icon_chart_Somewhat {
+    color: #FFCD56;
+}
+
+.icon_chart_Moderate {
+    color: #FF6384;
+}
+
+.icon_chart_Quite {
+    color: #FF9F40;
+}
