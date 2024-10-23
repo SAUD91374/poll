@@ -21,13 +21,17 @@ const form = useForm({
     password: '',
     remember: false,
 });
-
 const submit = () => {
     form.post(route('login'), {
         onFinish: () =>{ form.reset('password')
-
-        toast.fire({icon:"success",title:"SuccessFully!! Logged in.."})
         },
+        onSuccess: () =>{
+            toast.fire({icon:"success",title:"Successfully Logged in !!"})
+        },
+        onError: () =>{
+            toast.fire({icon:"error",title:"Something went wrong !!"})
+        }
+
     });
 };
 </script>

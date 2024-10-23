@@ -28,7 +28,7 @@
                         :class="{ 'border-red-500': errors.title }"
                         name="title"
                         id="title"
-                        placeholder="Your question here"
+                        placeholder="Your title here"
                     />
                     <span
                         v-if="props.errors.title"
@@ -137,7 +137,7 @@
                             class="relative flex items-center"
                         >
                             <label
-                                class="flex flex-col items-center justify-center bg-white border-t-4 border-[#4363EC] rounded-lg shadow-lg cursor-pointer w-full sm:w-[184px] h-[130px] px-2 py-4 relative"
+                                class="flex flex-col items-center justify-center bg-white border-t-4 border-[#4363EC] rounded-lg shadow-lg cursor-pointer w-full sm:w-[224px] sm:h-[156px] px-2 py-4 relative"
                             >
                                 <input
                                     @input="clearError(`images.${index}`)"
@@ -152,7 +152,7 @@
                                     v-if="image.src"
                                     :src="image.src"
                                     alt="Uploaded Image"
-                                    class=" object-fill w-40 h-24 rounded-lg"
+                                    class="object-fill w-44 h-28 rounded-md"
                                 />
                                 <img
                                     v-else
@@ -191,8 +191,6 @@
                                 :key="index"
                                 class="flex border border-[#4363EC] rounded-lg shadow-md p-2"
                             >
-
-
                                 <label class="flex items-center mr-4">
                                     <input
                                         @input="clearError(`images.${index}`)"
@@ -209,7 +207,7 @@
                                         v-if="image.src"
                                         :src="image.src"
                                         alt="Uploaded Image"
-                                        class="w-44 h-28 object-cover mx-2 rounded-lg"
+                                        class="w-44 h-auto object-cover mx-2 rounded-lg"
                                     />
                                     <img
                                         v-else
@@ -218,20 +216,20 @@
                                         class="w-14 h-14 object-contain mx-5"
                                     />
                                 </label>
-                                    <div class="flex flex-col w-full">
-                                        <input
-                                            type="text"
-                                            v-model="image.title"
-                                            placeholder="Title (optional)"
-                                            class="border-l-[3px] border-0 border-[#4363EC] rounded-lg p-2 mb-5"
-                                        />
-                                        <textarea
-                                            v-model="image.description"
-                                            placeholder="Description (optional)"
-                                            class="border-l-[3px] border-0 border-[#4363EC] rounded-lg p-2"
-                                            rows="2"
-                                        ></textarea>
-                                    </div>
+                                <div class="flex flex-col w-full">
+                                    <input
+                                        type="text"
+                                        v-model="image.title"
+                                        placeholder="Title (optional)"
+                                        class="border-l-[3px] border-0 border-[#4363EC] rounded-lg p-2 mb-5"
+                                    />
+                                    <textarea
+                                        v-model="image.description"
+                                        placeholder="Description (optional)"
+                                        class="border-l-[3px] border-0 border-[#4363EC] rounded-lg p-2"
+                                        rows="2"
+                                    ></textarea>
+                                </div>
 
                                 <div>
                                     <span
@@ -269,7 +267,7 @@
 
                 <!-- Settings toggles -->
                 <div v-if="showAdvancedSettings" class="space-y-4">
-                    <span class="block text-[#4363EC]">Settings</span>
+                    <span class="font-bold text-[#4363EC] block">Settings</span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div
                             class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -303,7 +301,7 @@
                     </div>
 
                     <!-- Voting restrictions -->
-                    <span class="block text-gray-700 font-semibold mb-2"
+                    <span class="font-bold text-[#4363EC] block mb-2"
                         >Voting restrictions</span
                     >
                     <div>
@@ -385,7 +383,7 @@ const form = useForm(
     reactive({
         title: "",
         description: "",
-        layout: 'grid',
+        layout: "grid",
         method: "multiplechoice",
         vote_per_ip: "Off",
         require_names: "Off",
@@ -408,7 +406,15 @@ function submit() {
         },
         onSuccess: () => {
             loading.value = false;
-            toast.fire({icon:"success",title:"Poll created Successfully!!"})
+            toast.fire({
+                icon: "success",
+                title: "Poll created Successfully!!",
+                customClass: {
+                    popup: "text-[#4363EC] rounded-lg shadow-md p-4", // Tailwind classes for background, text, and padding
+                    title: "font-semibold", // Tailwind class for title styling
+                    icon: "text-[#4363EC]", // Tailwind class for icon styling
+                },
+            });
             // Redirect or show success message if necessary
         },
         onError: () => {

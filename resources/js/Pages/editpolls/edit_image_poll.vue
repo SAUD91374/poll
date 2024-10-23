@@ -123,7 +123,7 @@
                             class="relative flex items-center"
                         >
                             <label
-                                class="flex flex-col items-center justify-center bg-white border-t-4 border-[#4363EC] rounded-lg shadow-lg cursor-pointer w-full sm:w-w-[184px] h-[130px]px-2 py-4 relative"
+                                class="flex flex-col items-center justify-center bg-white border-t-4 border-[#4363EC] rounded-lg shadow-lg cursor-pointer w-full sm:w-[224px] sm:h-[156px] px-2 py-4 relative"
                             >
                                 <input
                                     @input="clearError(`images.${index}`)"
@@ -131,14 +131,20 @@
                                     :id="`file-upload-${index}`"
                                     accept="image/*"
                                     class="hidden"
-                                    @change="event => handleImageUpload(event, index)"
+                                    @change="
+                                        (event) =>
+                                            handleImageUpload(event, index)
+                                    "
                                 />
                                 <!-- Show uploaded image or default placeholder -->
                                 <img
-                                    v-if="image.src || image"
-                                    :src="image.src ?? `/photos/${image}` "
+                                    v-if="
+                                        image.src ||
+                                        (typeof image === 'string' && image)
+                                    "
+                                    :src="image.src || `/photos/${image}`"
                                     alt="Uploaded Image"
-                                    class="object-fill w-40 h-24 rounded-lg"
+                                    class="object-fill w-44 h-28 rounded-md"
                                 />
                                 <img
                                     v-else
@@ -146,6 +152,7 @@
                                     alt="Upload Image"
                                     class="w-10 h-10 mb-2"
                                 />
+
                                 <span
                                     class="text-[#4363EC] font-Rajdhani text-s font-bold capitalize"
                                     >{{ `Option ${index + 1}` }}</span
@@ -160,7 +167,7 @@
                             <span
                                 v-if="index >= 2"
                                 @click.stop="deleteImage(index)"
-                                class="absolute top-2 right-2 text-2xl cursor-pointer text-[#4363EC] z-10"
+                                class="absolute top-2 right-2 text-xl cursor-pointer text-[#4363EC] z-10"
                                 >&#10005;</span
                             >
                         </div>
@@ -184,23 +191,27 @@
                                         :id="`file-upload-${index}`"
                                         accept="image/*"
                                         class="hidden"
-                                        @change="event => handleImageUpload(event, index)"
-
+                                        @change="
+                                            (event) =>
+                                                handleImageUpload(event, index)
+                                        "
                                     />
                                     <!-- Show uploaded image or default placeholder -->
                                     <img
-                                        v-if="image.src ?? image.image"
-                                        :src="image.src ??
+                                        v-if="image.src || image.image"
+                                        :src="
+                                            image.src ||
                                             `/photos/${image.image}`
                                         "
                                         alt="Uploaded Image"
-                                        class="w-44 h-28 object-cover mx-2 rounded-lg"
+                                        loading="lazy"
+                                        class="sm:w-44 sm:h-auto object-cover mx-2 rounded-lg"
                                     />
                                     <img
                                         v-else
                                         src="/assets/images/upload_images.png"
                                         alt="Upload Image"
-                                        class="w-14 h-14 object-contain mx-5"
+                                        class="w-14 h-14 object-contain mx-2"
                                     />
                                 </label>
                                 <div class="flex flex-col w-full">
@@ -241,7 +252,7 @@
                         <button
                             type="button"
                             @click="addImage"
-                            class="mt-2 bg-white font-semibold text-[#4363EC] rounded-lg flex items-center cursor-pointer shadow-lg text-s h-9 leading-10"
+                            class="mt-5 bg-white font-semibold text-[#4363EC] rounded-lg flex items-center cursor-pointer shadow-lg text-s h-9 leading-10"
                         >
                             <span
                                 class="flex items-center justify-center bg-[#4363EC] text-white rounded-l-lg w-8 h-9 text-2xl mr-6"
@@ -254,7 +265,7 @@
 
                 <!-- Settings toggles -->
                 <div v-if="showAdvancedSettings" class="space-y-4">
-                    <span class="block text-[#4363EC]">Settings</span>
+                    <span class="font-bold text-[#4363EC] block">Settings</span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div
                             class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -288,7 +299,7 @@
                     </div>
 
                     <!-- Voting restrictions -->
-                    <span class="block text-gray-700 font-semibold mb-2"
+                    <span class="font-bold text-[#4363EC] block mb-2"
                         >Voting restrictions</span
                     >
                     <div>
@@ -374,12 +385,12 @@ const props = defineProps({
 });
 // Determine which image array to use based on layout
 const image = ref(
-    props.multiplepoll[0].layout === 'grid'
+    props.multiplepoll[0].layout === "grid"
         ? JSON.parse(props.multiplepoll[0].images)
         : JSON.parse(props.multiplepoll[0].images_list)
 );
 // Define form data with reactive object
-const form = reactive({
+const form = useForm({
     title: props.multiplepoll[0].title,
     description: props.multiplepoll[0].description,
     layout: props.multiplepoll[0].layout,
@@ -388,8 +399,11 @@ const form = reactive({
     require_names: props.multiplepoll[0]?.require_names || "off",
     other_option_vote: props.multiplepoll[0]?.other_option_vote || "off",
     other_option_results: props.multiplepoll[0]?.other_option_results || "off",
-    images: image.value.map(img => ({ src: img, title: '', description: '' })),
+    images: image.value.map((img) => ({
+        src: img,
+    })),
 });
+
 const loading = ref(false);
 const errors = ref({}); // Error object to hold validation errors
 const previewImage = ref(null);
@@ -417,20 +431,28 @@ function submit(pollType, id) {
 
 // Method to add a new image option
 function addImage() {
-    image.value.push("");
-    form.images.push("");
+    const newImage = {
+        file: null,
+        src: null,
+    };
+    image.value.push(newImage);
+    form.images.push(newImage);
 }
 
 //this function handle the preview of uploaded image in options
 function handleImageUpload(event, index) {
-    let file = event.target.files[0];
-
+    const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onloadend = (e) => {
-            form.images[index].push(file);
-            // Set the src property of the image object in the form
-            image.push({ url: URL.createObjectURL(file) });
+        reader.onload = (e) => {
+            const newImage = {
+                file: file,
+                src: e.target.result,
+                title: form.images[index].title, // Retain title and description if needed
+                description: form.images[index].description,
+            };
+            image.value[index] = newImage; // Update image array
+            form.images[index] = newImage; // Update form array
         };
         reader.readAsDataURL(file);
     }
@@ -440,12 +462,15 @@ function handleImageUpload(event, index) {
 function deleteImage(index) {
     // Check if the number of options is greater than 2 before allowing deletion
     if (image.value.length > 2) {
-        image.value.splice(index, 1);  // Remove the image from images array at the specific index
-        form.images.splice(index, 1);   // Remove the image from form images array at the specific index
+        image.value.splice(index, 1); // Remove the image from images array at the specific index
+        form.images.splice(index, 1); // Remove the image from form images array at the specific index
     }
 }
 
 const showDescription = ref(false);
+if (props.multiplepoll[0].description) {
+    showDescription.value = true;
+}
 // Method to toggle description visibility
 function toggleDescription() {
     if (showDescription.value) {
@@ -456,6 +481,14 @@ function toggleDescription() {
 }
 
 const showAdvancedSettings = ref(false);
+if (
+    props.multiplepoll[0]?.vote_per_ip == "on" ||
+    props.multiplepoll[0]?.require_names == "on" ||
+    props.multiplepoll[0]?.other_option_vote == "on" ||
+    props.multiplepoll[0]?.other_option_results == "on"
+) {
+    showAdvancedSettings.value = true;
+}
 // Method to toggle advanced settings visibility
 function toggleAdvancedSettings() {
     showAdvancedSettings.value = !showAdvancedSettings.value;

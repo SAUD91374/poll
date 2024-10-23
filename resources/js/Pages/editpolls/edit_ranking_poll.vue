@@ -1,6 +1,7 @@
 <template>
     <main class="font-rajdhani max-w-screen-lg mx-auto p-2">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <!-- {{rankingpoll}} -->
             <div class="space-y-4 sm:space-y-6">
                 <!-- Form header and description -->
                 <div>
@@ -132,7 +133,7 @@
 
                         <!-- Settings toggles -->
                         <div v-if="showAdvancedSettings" class="space-y-4">
-                            <span class="block text-[#4363EC]">Settings</span>
+                            <span class="font-bold text-[#4363EC] block">Settings</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div
                                     class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -166,7 +167,7 @@
                             </div>
 
                             <!-- Voting restrictions -->
-                            <span class="block text-gray-700 font-semibold mb-2"
+                            <span class="font-bold text-[#4363EC] block mb-2"
                                 >Voting restrictions</span
                             >
                             <div>
@@ -204,7 +205,7 @@
                         <div
                             class="sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
                         >
-                        <button
+                            <button
                                 type="submit"
                                 class="bg-blue-600 text-white rounded-full text-xl px-6 py-3 shadow-xl mr-1 transition duration-500 ease-in-out transform hover:scale-110"
                                 :disabled="loading"
@@ -243,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps,onMounted,watch } from "vue";
+import { ref, defineProps, onMounted, watch } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { checks } from "@/Components/watchmethod";
 import Pagecontent from "@/Components/pagecontent.vue";
@@ -254,18 +255,18 @@ const props = defineProps({
         required: false, // Optional if there may be no errors initially
         default: () => ({}),
     },
-    rankingpoll:Object,
+    rankingpoll: Object,
 });
 
 const form = useForm({
     title: props.rankingpoll[0].title,
     description: props.rankingpoll[0].description,
     method: "rankingpoll",
-    options: ["",""],
-    vote_per_ip: props.rankingpoll[0]?.vote_per_ip || 'off',
-    require_names: props.rankingpoll[0]?.require_names || 'off',
-    other_option_vote: props.rankingpoll[0]?.other_option_vote || 'off',
-    other_option_results: props.rankingpoll[0]?.other_option_results || 'off',
+    options: ["", ""],
+    vote_per_ip: props.rankingpoll[0]?.vote_per_ip || "off",
+    require_names: props.rankingpoll[0]?.require_names || "off",
+    other_option_vote: props.rankingpoll[0]?.other_option_vote || "off",
+    other_option_results: props.rankingpoll[0]?.other_option_results || "off",
 });
 
 const showDescription = ref(false);
@@ -291,8 +292,9 @@ function deleteOption(index) {
 }
 
 const loading = ref(false);
-function submit(pollType,id) {
+function submit(pollType, id) {
     loading.value = true;
+console.log(form);
 
     // Submit the form
     router.put(`/update_poll/${pollType}/${id}`, form, {
@@ -301,6 +303,7 @@ function submit(pollType,id) {
         },
         onSuccess: () => {
             loading.value = false;
+            toast.fire({icon:"success",title:"Poll updated Successfully!!!"})
             router.visit('/vote_page');
             // Redirect or show success message if necessary
         },
@@ -310,18 +313,25 @@ function submit(pollType,id) {
     });
 }
 
-
-
-
 function toggleDescription() {
     showDescription.value = !showDescription.value;
+}
+if (props.rankingpoll[0].description) {
+    showDescription.value = true;
 }
 
 function toggleAdvancedSettings() {
     showAdvancedSettings.value = !showAdvancedSettings.value;
 }
 
-
+if (
+    props.rankingpoll[0]?.vote_per_ip == "on" ||
+    props.rankingpoll[0]?.require_names == "on" ||
+    props.rankingpoll[0]?.other_option_vote == "on" ||
+    props.rankingpoll[0]?.other_option_results == "on"
+) {
+    showAdvancedSettings.value = true;
+}
 // Watch each form field to remove specific error upon input change
 const clearError = (field) => {
     if (props.errors[field]) {

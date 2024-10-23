@@ -63,6 +63,18 @@
                                 >{{ props.errors.description }}</span
                             >
                         </div>
+                        <div
+                                class="relative mt-3"
+                                v-if=" previewImage || form.image"
+                            >
+                                <img
+                                    :src="
+                                        previewImage || `/photos/${form.image}`
+                                    "
+                                    alt="Image Preview"
+                                    class="w-52 h-auto object-cover rounded-md shadow-md sm:w-52 sm:h-auto"
+                                />
+                            </div>
 
                         <!-- File upload and description buttons -->
                         <div
@@ -74,7 +86,7 @@
                                     class="bg-white font-semibold text-[#4363EC] rounded-lg flex items-center cursor-pointer shadow-lg text-sm h-9 leading-10"
                                 >
                                     <input
-                                        @input="
+                                    @change="
                                             handleFileInput($event),
                                                 clearError('image')
                                         "
@@ -98,17 +110,6 @@
                                     {{ props.errors.image }}
                                 </span>
                             </div>
-                            <!-- Image preview -->
-                            <div class="relative mt-3">
-                                <img
-                                    :src="
-                                        previewImage ||
-                                        `/photos/${imagepoll[0].image}`
-                                    "
-                                    alt="Image Preview"
-                                    class="w-16 h-16 object-cover rounded-md shadow-md sm:w-9 sm:h-9"
-                                />
-                            </div>
 
                             <button
                                 @click="toggleDescription"
@@ -130,7 +131,7 @@
                         </div>
                         <!-- Answer options -->
                         <div>
-                            <label class="text-[#4363EC] block"
+                            <label class="font-bold text-[#4363EC] block"
                                 >Answer Options</label
                             >
                             <div>
@@ -224,7 +225,7 @@
 
                         <!-- Settings -->
                         <div v-if="showAdvancedSettings" class="space-y-4">
-                            <span class="block text-[#4363EC]">Settings</span>
+                            <span class="font-bold text-[#4363EC] block">Settings</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div
                                     class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -258,7 +259,7 @@
                             </div>
 
                             <!-- Voting restrictions -->
-                            <span class="block text-gray-700 font-semibold mb-2"
+                            <span class="font-bold text-[#4363EC] block mb-2"
                                 >Voting restrictions</span
                             >
                             <div>
@@ -342,31 +343,23 @@ const props = defineProps({
     },
     imagepoll: Object,
 });
-const handleFileInput = (event) => {
-    let file = event.target.files[0];
-    form.image = file;
 
-    if (file) {
-        previewImage.value = URL.createObjectURL(file); // Create a URL for the preview
-    }
-}
 // Initialize the form as a reactive object
 const form = useForm({
     title: props.imagepoll[0].title,
-    image: props.imagepoll[0].image || "",
+    image: props.imagepoll[0].image ,
     description: props.imagepoll[0].description,
     method: "imagepoll",
     options: ["", ""],
     others: "",
-    vote_per_ip: props.imagepoll[0]?.vote_per_ip || 'off',
-  require_names: props.imagepoll[0]?.require_names || 'off',
-  other_option_vote: props.imagepoll[0]?.other_option_vote || 'off',
-  other_option_results: props.imagepoll[0]?.other_option_results || 'off',
+    vote_per_ip: props.imagepoll[0]?.vote_per_ip,
+    require_names: props.imagepoll[0]?.require_names,
+    other_option_vote: props.imagepoll[0]?.other_option_vote,
+    other_option_results: props.imagepoll[0]?.other_option_results,
 });
-
 // Define other reactive properties
 const showDescription = ref(false);
-const showOtherOption = ref(false);
+// const showOtherOption = ref(false);
 const loading = ref(false);
 const previewImage = ref(null);
 const fileInput = ref(null);
@@ -377,7 +370,10 @@ const options = ref(JSON.parse(props.imagepoll[0].options));
 
 // Function to toggle additional "Other" option
 function addOther() {
-    showOtherOption.value = !showOtherOption.value;
+    other.value = !other.value;
+    if (other.value) {
+        form.others = null;
+    }
 }
 // Delete a specific option
 function deleteOption(index) {
@@ -390,12 +386,20 @@ function addOption() {
     options.value.push("");
     form.options.push("");
 }
+function handleFileInput(event) {
 
+const file = event.target.files[0];
 
+form.image =file;
+console.log(form.image);
+
+if (file) {
+    previewImage.value = URL.createObjectURL(file); // Create a URL for the preview
+}
+}
 
 // Submit the form
 function submit(pollType, id) {
-
     loading.value = true; // Start loading before submission
     router.put(`/update_poll/${pollType}/${id}`, form, {
         onFinish: () => {
@@ -403,7 +407,10 @@ function submit(pollType, id) {
         },
         onSuccess: () => {
             loading.value = false;
-        toast.fire({icon:"success",title:"Poll Updated <h1>SuccessFully!!!</h1>"})
+            toast.fire({
+                icon: "success",
+                title: "Poll Updated <h1>SuccessFully!!!</h1>",
+            });
             // Handle success, e.g., redirect or show a message
         },
         onError: (error) => {
@@ -413,7 +420,10 @@ function submit(pollType, id) {
         },
     });
 }
-
+//if description have a value then open it
+if (props.imagepoll[0].description) {
+    showDescription.value = true;
+}
 // Toggle description visibility
 function toggleDescription() {
     if (showDescription.value) {
@@ -425,7 +435,15 @@ function toggleDescription() {
 function toggleAdvancedSettings() {
     showAdvancedSettings.value = !showAdvancedSettings.value;
 }
-
+//if advanced setting have a value
+if (
+    props.imagepoll[0]?.vote_per_ip == "on" ||
+    props.imagepoll[0]?.require_names == "on" ||
+    props.imagepoll[0]?.other_option_vote == "on" ||
+    props.imagepoll[0]?.other_option_results == "on"
+) {
+    showAdvancedSettings.value = true;
+}
 // Handle file input
 
 // Initialize options on mount
@@ -451,8 +469,9 @@ const resetForm = () => {
         vote_per_ip: false,
         require_names: false,
         other_option_vote: false,
-        other_option_results: "",
+        other_option_results: false,
     });
+    previewImage.value = null; // Reset the image preview
 };
 </script>
 

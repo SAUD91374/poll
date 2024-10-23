@@ -33,19 +33,16 @@ class PollController extends Controller
     {
         return Inertia::render('poll/ranking_poll');
     }
-// polls render function
+    // polls render function
     public function vote_Page()
     {
         $votes = vote::select('title', 'selectedOption', 'votes')->get();
-        // Calculate total votes
-        $totalvotes = $votes->sum('votes');
 
         $ranking_polls = ranking::all();
         // dd($ranking_polls);
         return Inertia::render('poll/vote_page', [
             'rpolls' => $ranking_polls,
             'votes' => $votes,
-            'totalvotes' => $totalvotes,
         ]);
     }
 
@@ -182,21 +179,36 @@ class PollController extends Controller
         ranking::create($pollinfo);
         return redirect('/vote_page');
     }
-//poll delete
+    //poll delete
     public function delete_Poll($pollType, $id)
     {
         switch ($pollType) {
             case 'imagepoll':
                 // Logic to delete a poll from 'vote_page'
+                //deleting polls votes
+                if (poll::where('id', $id)->exists()) {
+                    $votes = poll::where('id', $id)->first();
+                    vote::where('poll_name', operator: $pollType)->where('title', $votes->title)->delete();
+                }
                 poll::where('id', $id)->delete();
                 break;
 
             case 'ranking':
                 // Logic to delete a poll from 'images_vote_page'
+                //deleting polls votes
+                if (ranking::where('id', $id)->exists()) {
+                    $votes = ranking::where('id', $id)->first();
+                    vote::where('poll_name', operator: $pollType)->where('title', $votes->title)->delete();
+                }
                 ranking::where('id', $id)->delete();
                 break;
 
             case 'multiplepoll':
+                //deleting polls votes
+                if (multiplechoice::where('id', $id)->exists()) {
+                    $votes = multiplechoice::where('id', $id)->first();
+                    vote::where('poll_name', operator: $pollType)->where('title', $votes->title)->delete();
+                }
                 // Logic to delete a poll from 'multiple_vote_page'
                 multiplechoice::where('id', $id)->delete();
                 break;
@@ -204,43 +216,39 @@ class PollController extends Controller
             default:
                 return response()->json(['error' => 'Invalid poll type'], 400);
         }
-
-        // session()->flash('success', 'Poll Deleted successfully!');
-
-        // You can also return a response here if needed
-        return response(session()->flash('success', 'Poll Deleted successfully!'));
     }
 
 
-    public function edit_Poll($pollType, $id){
-    switch ($pollType) {
-        case 'imagepoll':
-            $imagepoll=poll::where('id',$id)->get();
-            return Inertia::render('editpolls/edit_poll', [
-                'imagepoll' => $imagepoll,
-            ]);
+    public function edit_Poll($pollType, $id)
+    {
+        switch ($pollType) {
+            case 'imagepoll':
+                $imagepoll = poll::where('id', $id)->get();
+                return Inertia::render('editpolls/edit_poll', [
+                    'imagepoll' => $imagepoll,
+                ]);
 
             case 'multiplepoll':
-                $multiplepoll=multiplechoice::where('id',$id)->get();
-            return Inertia::render('editpolls/edit_image_poll', [
-                'multiplepoll' => $multiplepoll,
-            ]);
+                $multiplepoll = multiplechoice::where('id', $id)->get();
+                return Inertia::render('editpolls/edit_image_poll', [
+                    'multiplepoll' => $multiplepoll,
+                ]);
 
-        case 'ranking':
-            $rankingpoll=ranking::where('id',$id)->get();
+            case 'ranking':
+                $rankingpoll = ranking::where('id', $id)->get();
 
-            return Inertia::render('editpolls/edit_ranking_poll', [
-                'rankingpoll' => $rankingpoll,
-            ]);
+                return Inertia::render('editpolls/edit_ranking_poll', [
+                    'rankingpoll' => $rankingpoll,
+                ]);
 
-        default:
-            abort(404, 'Poll type not found');
+            default:
+                abort(404, 'Poll type not found');
+        }
+
     }
-
-    }
-    public function update_Poll($pollType,$id, Request $request)
+    public function update_Poll($pollType, $id, Request $request)
     {
-        dd(vars: $request->file('image'));
+        dd($request->all());
         // Determine the method type from the request
         $poll = $request->method;
         // Handle the update based on the poll type
@@ -263,15 +271,15 @@ class PollController extends Controller
             $image = $request->file('image');
             $imageName = time() . '-' . $image->getClientOriginalName();
             $image->move(public_path('photos'), $imageName);
-        }else{
-            $imageName=$request->image;
+        } else {
+            $imageName = $request->image;
         }
 
         // Update other fields
         $poll->update([
             'title' => $request->title,
             'description' => $request->description,
-            'image'=>$imageName,
+            'image' => $imageName,
             'options' => json_encode($request->input('options')),
             'others' => $request->others,
             'vote_per_ip' => $request->vote_per_ip,
@@ -356,9 +364,9 @@ class PollController extends Controller
             'other_option_vote' => $request->other_option_vote,
             'other_option_results' => $request->other_option_results,
         ]);
-
+        return redirect('/vote_page')->with('success', 'Poll deleted successfully.');
         // You can also return a response here if needed
-        return response(session()->flash('success', 'Poll updated successfully!'));
+        //    return redirect()->back();
 
     }
 

@@ -63,27 +63,25 @@
                                 class="text-red-500 text-sm"
                                 >{{ props.errors.description }}</span
                             >
-
                         </div>
                         <div v-if="previewImage" class="relative mt-3">
-                                <img
-                                    :src="previewImage"
-                                    alt="Image Preview"
-                                    class="w-16 h-16 object-cover rounded-md shadow-md sm:w-52 sm:h-40"
-                                />
-                                <!-- Cross icon to remove the image -->
-                                <button
-                                    @click="removeImage"
-                                    class="absolute top-0 left-20 bg-blue-500 sm:bg-gray-100 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md sm:text-black sm:bottom-0 sm:right-0 sm:absolute sm:w-8 sm:h-8"
-                                >
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
+                            <img
+                                :src="previewImage"
+                                alt="Image Preview"
+                                class="w-52 h-auto object-cover rounded-md shadow-md sm:w-52 sm:h-auto"
+                            />
+                            <!-- Cross icon to remove the image -->
+                            <button
+                                @click="removeImage"
+                                class="absolute top-0 left-56 bg-[#4363EC] sm:bg-gray-10 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md  sm:top-0 sm:left-56 sm:absolute sm:w-8 sm:h-8"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                         <!-- File upload and description buttons -->
                         <div
                             class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
                         >
-
                             <div>
                                 <label
                                     for="img"
@@ -161,7 +159,7 @@
 
                         <!-- Answer options -->
                         <div>
-                            <label class="text-[#4363EC] block"
+                            <label class="font-bold text-[#4363EC] block mb-2"
                                 >Answer Options</label
                             >
                             <div>
@@ -255,7 +253,7 @@
 
                         <!-- Settings -->
                         <div v-if="showAdvancedSettings" class="space-y-4">
-                            <span class="block text-[#4363EC]">Settings</span>
+                            <span class="font-bold text-[#4363EC] block">Settings</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div
                                     class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -390,6 +388,9 @@ function addOption() {
 }
 function addOther() {
     other.value = !other.value;
+    if (other.value) {
+        form.others = null;
+    }
 }
 
 function deleteOption(index) {
@@ -404,6 +405,7 @@ function deleteOption(index) {
 
 function submit() {
     loading.value = true;
+    console.log(form);
 
     // Submit the form
     router.post("/pollsubmit", form, {
@@ -412,7 +414,15 @@ function submit() {
         },
         onSuccess: () => {
             loading.value = false;
-            toast.fire({icon:"success",title:"Poll created Successfully!!"})
+            toast.fire({
+                icon: "success",
+                title: "Poll created Successfully!!",
+                customClass: {
+                    popup: "text-[#4363EC] rounded-lg shadow-md p-4", // Tailwind classes for background, text, and padding
+                    title: "font-semibold", // Tailwind class for title styling
+                    icon: "text-[#4363EC]", // Tailwind class for icon styling
+                },
+            });
             // Redirect or show success message if necessary
         },
         onError: () => {
@@ -435,6 +445,7 @@ function toggleAdvancedSettings() {
 
 function handleFileInput(event) {
     const file = event.target.files[0];
+
     this.form.image = file;
     if (file) {
         previewImage.value = URL.createObjectURL(file); // Create a URL for the preview

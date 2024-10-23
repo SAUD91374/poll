@@ -2,6 +2,7 @@
     <div
         class="border-t-4 border-[#4363EC] font-rajdhani container mx-auto mt-5 p-4 sm:p-6 bg-white shadow-lg rounded-lg max-w-full sm:max-w-screen-md"
     >
+        <!-- {{rpolls[index]}} -->
         <div class="relative flex justify-end">
             <!-- Ellipsis Icon Button -->
             <button @click="toggleDropdown" class="focus:outline-none">
@@ -17,19 +18,18 @@
                     <Link
                         :href="`/edit_poll/${form.poll_name}/${rpolls[index].id}`"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
+                    >
                         <i class="fa-solid fa-pen mr-2"></i>
                         Edit
-                        </Link
-                    >
+                    </Link>
                     <Link
+                        @click.prevent="successMessage"
                         :href="`/delete_poll/${form.poll_name}/${rpolls[index].id}`"
                         class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
-                        >
+                    >
                         <i class="fa-solid fa-trash mr-2"></i>
                         Delete
-                        </Link
-                    >
+                    </Link>
                 </div>
             </div>
         </div>
@@ -106,15 +106,14 @@
             @next="nextPoll"
         />
     </div>
-
     <!-- Poll Results Section -->
-    <div
-        :v-if="votes.length > 0"
-        class="container mx-auto mt-8 max-w-full sm:max-w-screen-lg p-5"
-    >
+    <div class="container items-center mx-auto mt-8 max-w-full sm:max-w-screen-lg p-5">
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <!-- Poll Results Section -->
-            <div class="w-full lg:w-1/2 mb-8 lg:mb-0">
+            <div
+                class="w-full lg:w-1/2 mb-8 lg:mb-0"
+                v-if="totalVotesForCurrentPoll > 0"
+            >
                 <div class="flex justify-between">
                     <p class="text-2xl sm:text-3xl font-bold text-[#4363EC]">
                         Poll Result
@@ -151,12 +150,24 @@
                     </div>
                 </div>
             </div>
+            <div
+                v-else
+                class="flex flex-col sm:items-center sm:justify-center justify-center items-center absolute right-14 left-14"
+            >
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-700 mb-4">
+                    No Votes Yet!!
+                </h1>
+                <p class="text-gray-600 text-sm sm:text-lg">
+                    Be the first to cast your vote.
+                </p>
+            </div>
 
             <!-- Pie Chart Section -->
             <div class="w-full lg:w-1/2 flex flex-col justify-between">
                 <div class="flex flex-col items-center">
                     <p
                         class="text-2xl sm:text-3xl text-center font-bold text-[#4363EC]"
+                        v-if="totalVotesForCurrentPoll > 0"
                     >
                         Poll Chart Result
                     </p>
@@ -165,27 +176,13 @@
                         class="relative w-full max-w-xs h-56 sm:h-72"
                     ></canvas>
                 </div>
-
-                <!-- Legend -->
-                <!-- <div class="mt-2 space-y-2 sm:space-y-3">
-                    <div
-                        v-for="(result, i) in currentPollVotes"
-                        :key="i"
-                        class="flex items-center space-x-2 sm:space-x-3"
-                    >
-                        <span class="block w-4 h-4 sm:w-5 sm:h-5 rounded-full" :style="{ backgroundColor: colors[i] }"></span>
-                        <span class="text-sm sm:text-lg">
-                            {{ result.selectedOption }}: {{ calculatePercentage(result.votes) }}% ({{ result.votes }} votes)
-                        </span>
-                    </div>
-                </div> -->
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch,onBeforeUnmount  } from "vue";
+import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 import { useForm, router, usePage } from "@inertiajs/vue3";
 import PollNavigation from "@/Components/common.vue";
 import { Chart } from "chart.js/auto"; // Import Chart.js
@@ -194,13 +191,12 @@ import TimeAgo from "@/Components/time_ago.vue"; // Adjust the import path as ne
 const props = defineProps({
     rpolls: { type: Array, required: true },
     votes: { type: Array, required: true },
-    totalvotes: { type: Number },
 });
 
 const index = ref(0);
 const isSubmitting = ref(false); // Track submission state
 const colors = ["#3490dc", "#ffed4a", "#38c172", "#e3342f", "#6c757d"];
-
+// totalVotesForCurrentPoll=ref(0);
 // Form state for poll selection
 const form = useForm({
     poll_name: "ranking",
@@ -233,17 +229,17 @@ const toggleDropdown = () => {
 };
 // Close dropdown when clicking outside
 const handleClickOutside = (event) => {
-  if (!event.target.closest('.relative')) {
-    isDropdownOpen.value = false;
-  }
+    if (!event.target.closest(".relative")) {
+        isDropdownOpen.value = false;
+    }
 };
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
 });
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
+    document.removeEventListener("click", handleClickOutside);
 });
 
 // Calculate the currentPollVotes
@@ -260,7 +256,10 @@ const totalVotesForCurrentPoll = computed(() => {
         0
     );
 });
-
+// const voteExist=ref(false);
+// if(totalVotesForCurrentPoll > 0){
+//     voteExist.value=true;
+// }
 // Function to calculate percentage
 function calculatePercentage(votes) {
     if (totalVotesForCurrentPoll.value === 0) {
@@ -322,7 +321,9 @@ watch(currentPollVotes, () => {
 
 // Run on initial load
 onMounted(() => {
-    renderChart();
+    if (currentPollVotes.value.length > 0) {
+        renderChart();
+    }
 });
 
 // Navigation between polls
@@ -331,6 +332,9 @@ const prevPoll = () => {
         index.value--;
         form.title = props.rpolls[index.value].title;
         form.selectedOption = null;
+        if (chartInstance) {
+            chartInstance.destroy(); // Destroy previous chart instance before creating a new one
+        }
     }
 };
 
@@ -339,6 +343,9 @@ const nextPoll = () => {
         index.value++;
         form.title = props.rpolls[index.value].title;
         form.selectedOption = null;
+        if (chartInstance) {
+            chartInstance.destroy(); // Destroy previous chart instance before creating a new one
+        }
     }
 };
 
@@ -348,14 +355,39 @@ const submitPoll = () => {
         isSubmitting.value = true; // Set the button to "Voting..."
         setTimeout(() => {
             isSubmitting.value = false; // Revert the button after 2 seconds
-            alert("Vote submitted!"); // Optional: Replace with actual submission logic
             router.post("/poll", form); // Submit the form
+            toast.fire({
+                icon: "success",
+                title: "Your vote has been saved",
+            });
         }, 2000);
     } else {
         alert("Please select an option before voting.");
     }
 };
+// function deletePoll() {
 
+//     // Submit the form
+//     router.delete(`/delete_poll/${form.poll_name}/${rpolls[index].id}`, form, {
+//         onSuccess: () => {
+//             loading.value = false;
+//             toast.fire({
+//                 icon: "success",
+//                 title: "Poll created Successfully!!",
+//                 customClass: {
+//                     popup: "text-[#4363EC] rounded-lg shadow-md p-4", // Tailwind classes for background, text, and padding
+//                     title: "font-semibold", // Tailwind class for title styling
+//                     icon: "text-[#4363EC]", // Tailwind class for icon styling
+//                 },
+//             });
+//             // Redirect or show success message if necessary
+//         },
+
+//     });
+// }
+function successMessage() {
+    toast.fire({ icon: "warning", title: "Poll Deleting..." });
+}
 // Share link functionality
 const shareLink = () => {
     const pollUrl = `${window.location.origin}/vote_page/?poll=${index.value}`;

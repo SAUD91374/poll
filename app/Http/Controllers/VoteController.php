@@ -43,21 +43,25 @@ class VoteController extends Controller
             'selectedOption' => $request->selectedOption,
         ];
 
-   // Get the user's IP address
-   $userIp = $request->ip();
+        // Get the user's IP address
+        $userIp = $request->ip();
 
-   // Check if the same IP has already voted for this poll
+        // Check if the same IP has already voted for this poll
 //    $ipVoted =vote::where('ip_address', $userIp)
 //                 ->where('title',$poll['title'])
 //                   ->exists();
 
-//    if ($ipVoted) {
+        //    if ($ipVoted) {
 //        // If the IP has already voted, return a message
 //        return response()->json('You have already voted', 403);
 //    }
         // Check if the selected option already exists
-        if (Vote::where('poll_name','selectedOption', $poll['selectedOption'])->exists()) {
-            $existingVote = Vote::where('poll_name','selectedOption', $poll['selectedOption'])->first();
+        if (
+            Vote::where('poll_name', $request->poll_name)
+                ->where('selectedOption', $poll['selectedOption'])->exists()
+        ) {
+            $existingVote = Vote::where('poll_name', $request->poll_name)
+                                ->where('selectedOption', $poll['selectedOption'])->first();
             $existingVote->votes += 1;  // Increment the vote count
             $existingVote->save();
         } else {

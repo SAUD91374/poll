@@ -34,7 +34,7 @@
                                 :class="{ 'border-red-500': errors.title }"
                                 name="title"
                                 id="title"
-                                placeholder="Your question here"
+                                placeholder="Your title here"
                             />
                             <span
                                 v-if="props.errors.title"
@@ -157,7 +157,7 @@
 
                         <!-- Settings toggles -->
                         <div v-if="showAdvancedSettings" class="space-y-4">
-                            <span class="block text-[#4363EC]">Settings</span>
+                            <span class="font-bold text-[#4363EC] block">Settings</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div
                                     class="flex items-center border-l-[3px] border-[#4363EC] bg-white rounded-lg shadow-md h-11"
@@ -191,7 +191,7 @@
                             </div>
 
                             <!-- Voting restrictions -->
-                            <span class="block text-gray-700 font-semibold mb-2"
+                            <span class="font-bold text-[#4363EC] block mb-2"
                                 >Voting restrictions</span
                             >
                             <div>
@@ -311,7 +311,15 @@ function submit() {
         },
         onSuccess: () => {
             loading.value = false;
-            toast.fire({icon:"success",title:"Poll created Successfully!!"})
+            toast.fire({
+    icon: 'success',
+    title: 'Poll created Successfully!!',
+    customClass: {
+      popup: 'text-[#4363EC] rounded-lg shadow-md p-4', // Tailwind classes for background, text, and padding
+      title: 'font-semibold',  // Tailwind class for title styling
+      icon: 'text-[#4363EC]'   // Tailwind class for icon styling
+    }
+  });
             // Redirect or show success message if necessary
         },
         onError: () => {
