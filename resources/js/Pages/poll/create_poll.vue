@@ -1,5 +1,5 @@
 <template>
-    <main class="font-rajdhani max-w-screen-lg mx-auto">
+    <main class="font-rajdhani max-w-screen-md mx-auto">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <div class="space-y-6">
                 <!-- Form header and description -->
@@ -72,7 +72,7 @@
                             />
                             <!-- Cross icon to remove the image -->
                             <button
-                                @click="removeImage"
+                                @click.prevent="removeImage" @keydown.enter.prevent
                                 class="absolute top-0 left-56 bg-[#4363EC] sm:bg-gray-10 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md  sm:top-0 sm:left-56 sm:absolute sm:w-8 sm:h-8"
                             >
                                 <i class="fa-solid fa-trash"></i>
@@ -369,7 +369,7 @@ const form = useForm({
     method: "imagepoll",
     options: ["", ""],
     others: null,
-    vote_per_ip: "Off",
+    vote_per_ip: "On",
     require_names: "Off",
     other_option_vote: "Off",
     other_option_results: "Off",

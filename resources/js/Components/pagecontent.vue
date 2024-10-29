@@ -165,12 +165,12 @@
 
         <div class="relative h-auto w-full bg-[#0a218c] overflow-hidden">
             <div
-                class="relative flex flex-col items-center justify-center text-center text-white w-full h-80 md:h-96 lg:h-[600px]"
+                class="relative flex flex-col items-center justify-center text-center text-white w-full h-60 md:h-96 lg:h-[600px]"
             >
                 <img
                     src="/assets/images/banner.png"
                     alt="Banner Image"
-                    class="absolute inset-0 w-full h-full object-cover"
+                    class="absolute sm:inset-0 inset-0 w-full h-full object-cover"
                 />
                 <div class="relative z-10 p-4 md:p-8">
                     <h3

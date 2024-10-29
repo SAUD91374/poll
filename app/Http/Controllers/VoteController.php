@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\vote;
+use Error;
 use Illuminate\Http\Request;
 
 use function Laravel\Prompts\alert;
@@ -30,6 +31,7 @@ class VoteController extends Controller
      */
     public function storePoll(Request $request)
     {
+        // dd($request->all());
         // Validate the request
         $request->validate([
             'poll_name' => 'required|string|max:255',  // Ensure poll_name is required
@@ -39,29 +41,33 @@ class VoteController extends Controller
 
         $poll = [
             'poll_name' => $request->poll_name,
+            'name'=>$request->name,
             'title' => $request->title,
             'selectedOption' => $request->selectedOption,
         ];
 
         // Get the user's IP address
         $userIp = $request->ip();
+        //if user checked the one vote per ip
+        if ($request->settings['vote_per_ip'] == 'on') {
 
-        // Check if the same IP has already voted for this poll
-//    $ipVoted =vote::where('ip_address', $userIp)
-//                 ->where('title',$poll['title'])
-//                   ->exists();
+            // Check if the same IP has already voted for this poll
+            $ipVoted = vote::where('ip_address', $userIp)
+                ->where('title', $poll['title'])
+                ->exists();
 
-        //    if ($ipVoted) {
-//        // If the IP has already voted, return a message
-//        return response()->json('You have already voted', 403);
-//    }
+            if ($ipVoted) {
+                // If the IP has already voted, return a message
+                return response()->json(['error'=>'An error occured'],422);
+            }
+        }
         // Check if the selected option already exists
         if (
             Vote::where('poll_name', $request->poll_name)
                 ->where('selectedOption', $poll['selectedOption'])->exists()
         ) {
             $existingVote = Vote::where('poll_name', $request->poll_name)
-                                ->where('selectedOption', $poll['selectedOption'])->first();
+                ->where('selectedOption', $poll['selectedOption'])->first();
             $existingVote->votes += 1;  // Increment the vote count
             $existingVote->save();
         } else {

@@ -1,5 +1,5 @@
 <template>
-    <main class="font-rajdhani max-w-screen-lg mx-auto">
+    <main class="font-rajdhani max-w-screen-md mx-auto">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <div class="space-y-6">
                 <!-- Form header and description -->

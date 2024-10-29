@@ -1,5 +1,5 @@
 <template>
-    <main class="font-rajdhani max-w-screen-lg mx-auto p-2">
+    <main class="font-rajdhani max-w-screen-md mx-auto p-2">
         <div class="bg-white p-6 rounded-lg shadow-md">
             <!-- <h1>{{ multiplepoll[0] }}</h1> -->
             <h3 class="text-4xl sm:text-5xl text-[#4363EC] font-semibold">

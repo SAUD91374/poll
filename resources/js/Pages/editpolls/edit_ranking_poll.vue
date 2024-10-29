@@ -1,5 +1,5 @@
 <template>
-    <main class="font-rajdhani max-w-screen-lg mx-auto p-2">
+    <main class="font-rajdhani max-w-screen-md mx-auto p-2">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <!-- {{rankingpoll}} -->
             <div class="space-y-4 sm:space-y-6">

@@ -38,10 +38,17 @@
         <h1 class="text-2xl font-bold text-[#4363EC] mb-2">
             {{ multiple[index].title }}
         </h1>
-        <p class="text-lg text-black mb-5">{{ multiple[index].description }}</p>
+        <p class="text-lg text-black mb-2">{{ multiple[index].description }}</p>
         <!-- Use the TimeAgo component to display the creation time -->
-        <TimeAgo :createdAt="multiple[index].created_at" />
-        <p class="text-2xl text-black mb-4">Make a choice:</p>
+        <div
+                class="text-gray-600 text-sm sm:text-lg"
+            >
+                by <span class="">{{ user }}</span>
+                <!-- Use the TimeAgo component to display the creation time -->
+                <i class="fa-regular fa-clock mx-2"></i>
+                <TimeAgo class="font-medium" :createdAt="multiple[index].created_at" />
+            </div>
+        <p class="text-2xl text-black mt-6">Make a choice:</p>
 
         <!-- Poll Form -->
         <form @submit.prevent="submitPoll">
@@ -116,7 +123,7 @@
             <div
                 v-for="(list, i) in JSON.parse(multiple[index].images_list)"
                 :key="i"
-                class="flex m-4 items-start p-5 border border-gray-300 rounded-lg relative"
+                class="flex my-4 items-start p-5 border border-gray-300 rounded-lg relative"
                 @click="form.selectedOption = `list_option_${i + 1}`"
             >
                 <!-- Radio button positioned at the top right -->
@@ -185,6 +192,7 @@ import TimeAgo from "@/Components/time_ago.vue"; // Adjust the import path as ne
 
 const props = defineProps({
     multiple: { type: Array, required: true },
+    user: String,
 });
 const isDropdownOpen = ref(false);
 
@@ -253,8 +261,11 @@ const submitPoll = () => {
         isSubmitting.value = true; // Set the button to "Voting..."
         setTimeout(() => {
             isSubmitting.value = false; // Revert the button after 2 seconds
-            alert("Vote submitted!"); // Optional: Replace with actual submission logic
             router.post("/poll", form); // Submit the form
+            toast.fire({
+                icon: "success",
+                title: "Your vote has been saved",
+            });
         }, 2000);
     } else {
         alert("Please select an option before voting.");

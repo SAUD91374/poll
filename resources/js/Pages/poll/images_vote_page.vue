@@ -49,7 +49,7 @@
             <div class="flex">
                 <input
                     v-model="form.title"
-                    class="block border-none w-full text-xl sm:text-3xl font-bold text-[#4363EC] pb-2"
+                    class="block p-0 border-none w-full text-xl sm:text-3xl font-bold text-[#4363EC] pb-2"
                     readonly
                 />
             </div>
@@ -58,7 +58,14 @@
                 {{ polls[index].description }}
             </span>
             <!-- Use the TimeAgo component to display the creation time -->
-            <TimeAgo :createdAt="polls[index].created_at" />
+            <div
+                class="text-gray-600 text-sm sm:text-lg"
+            >
+                by <span class="">{{ user }}</span>
+                <!-- Use the TimeAgo component to display the creation time -->
+                <i class="fa-regular fa-clock mx-2"></i>
+                <TimeAgo class="font-medium" :createdAt="polls[index].created_at" />
+            </div>
             <!-- Poll Image -->
             <div class="flex justify-center mb-6">
                 <img
@@ -138,7 +145,7 @@ import TimeAgo from "@/Components/time_ago.vue"; // Adjust the import path as ne
 const props = defineProps({
     polls: { type: Array, required: true },
     votes: { type: Array, required: true },
-    totalvotes: { type: Number, required: true },
+    user: String,
 });
 
 const index = ref(0);
@@ -224,8 +231,11 @@ const submitPoll = () => {
         isSubmitting.value = true; // Set the button to "Voting..."
         setTimeout(() => {
             isSubmitting.value = false; // Revert the button after 2 seconds
-            alert("Vote submitted!"); // Optional: Replace with actual submission logic
             router.post("/poll", form); // Submit the form
+            toast.fire({
+                icon: "success",
+                title: "Your vote has been saved",
+            });
         }, 2000);
     } else {
         alert("Please select an option before voting.");

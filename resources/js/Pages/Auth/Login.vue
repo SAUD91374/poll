@@ -17,8 +17,8 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: 'saudmb46@gmail.com',
+    password: '123456789',
     remember: false,
 });
 const submit = () => {
@@ -29,7 +29,7 @@ const submit = () => {
             toast.fire({icon:"success",title:"Successfully Logged in !!"})
         },
         onError: () =>{
-            toast.fire({icon:"error",title:"Something went wrong !!"})
+            toast.fire({icon:"error",title:"Something went wrong !!",position:"top"})
         }
 
     });

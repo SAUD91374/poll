@@ -2,7 +2,7 @@
     <div
         class="border-t-4 border-[#4363EC] font-rajdhani container mx-auto mt-5 p-4 sm:p-6 bg-white shadow-lg rounded-lg max-w-full sm:max-w-screen-md"
     >
-        <!-- {{rpolls[index]}} -->
+
         <div class="relative flex justify-end">
             <!-- Ellipsis Icon Button -->
             <button @click="toggleDropdown" class="focus:outline-none">
@@ -37,14 +37,20 @@
         <form @submit.prevent="submitPoll">
             <input
                 v-model="form.title"
-                class="block w-full border-0 text-xl sm:text-3xl font-bold text-[#4363EC]"
+                class="inline p-0 border-0 text-xl sm:text-3xl font-bold text-[#4363EC]"
                 readonly
             />
-            <span class="block text-black mt-2 text-sm sm:text-lg ml-4">
+            <span class="block text-black mt-2 text-sm sm:text-lg">
                 {{ rpolls[index].description }}
             </span>
-            <!-- Use the TimeAgo component to display the creation time -->
-            <TimeAgo class="ml-4" :createdAt="rpolls[index].created_at" />
+            <div
+                class="text-gray-600 text-sm sm:text-lg"
+            >
+                by <span class="">{{ user }}</span>
+                <!-- Use the TimeAgo component to display the creation time -->
+                <i class="fa-regular fa-clock mx-2"></i>
+                <TimeAgo class="font-medium" :createdAt="rpolls[index].created_at" />
+            </div>
 
             <!-- Poll Options -->
             <p class="text-lg sm:text-2xl text-gray-800 mt-6">Make a choice:</p>
@@ -76,7 +82,22 @@
                     </label>
                 </div>
             </div>
+            <div class="my-5" v-if="settings.require_names == 'on'">
+                            <label
+                                for="title"
+                                class="font-bold text-[#4363EC] block mb-1"
+                                >Name (required)</label
+                            >
+                            <input
+                                type="text"
+                                v-model="form.name"
+                                class="border-l-[3px] border-0 border-[#4363EC] rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
 
+                                placeholder="Your title here"
+                            />
+                        </div>
+
+{{  settings.require_names}}
             <!-- Vote and Share Buttons -->
             <div
                 class="flex flex-col sm:flex-row justify-between items-center mt-6"
@@ -107,12 +128,14 @@
         />
     </div>
     <!-- Poll Results Section -->
-    <div class="container items-center mx-auto mt-8 max-w-full sm:max-w-screen-lg p-5">
+    <div
+        class="container items-center mx-auto mt-8 max-w-full sm:max-w-screen-lg p-5"
+    >
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <!-- Poll Results Section -->
             <div
                 class="w-full lg:w-1/2 mb-8 lg:mb-0"
-                v-if="totalVotesForCurrentPoll > 0"
+                v-if="totalVotesForCurrentPoll > 0 "
             >
                 <div class="flex justify-between">
                     <p class="text-2xl sm:text-3xl font-bold text-[#4363EC]">
@@ -191,17 +214,23 @@ import TimeAgo from "@/Components/time_ago.vue"; // Adjust the import path as ne
 const props = defineProps({
     rpolls: { type: Array, required: true },
     votes: { type: Array, required: true },
+    user: String,
 });
 
 const index = ref(0);
 const isSubmitting = ref(false); // Track submission state
 const colors = ["#3490dc", "#ffed4a", "#38c172", "#e3342f", "#6c757d"];
+const settings = computed(() => props.rpolls[index.value]);
+
+// console.log(props.rpolls[index.value]);
 // totalVotesForCurrentPoll=ref(0);
 // Form state for poll selection
 const form = useForm({
     poll_name: "ranking",
+    name: computed(() => (settings.value.require_names === 'off' ? null : props.user)),
     title: props.rpolls[index.value].title,
     selectedOption: null,
+    settings:settings,
 });
 // On page load, check if a poll index is provided in the URL or default to the last poll
 onMounted(() => {
@@ -297,9 +326,11 @@ function renderChart() {
             responsive: true,
             plugins: {
                 legend: {
-                    position: "top",
+                    position: "bottom",
                 },
                 tooltip: {
+                    enabled: true,
+                    position: "nearest",
                     callbacks: {
                         label: function (tooltipItem) {
                             const value = tooltipItem.raw;
@@ -351,6 +382,7 @@ const nextPoll = () => {
 
 // Submit the selected poll
 const submitPoll = () => {
+
     if (form.selectedOption !== null) {
         isSubmitting.value = true; // Set the button to "Voting..."
         setTimeout(() => {

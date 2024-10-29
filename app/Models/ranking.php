@@ -8,10 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ranking extends Model
 {
     use HasFactory;
-    protected $fillable=['title','description','method','options','vote_per_ip','require_names','other_option_vote','other_option_results'];
-        // Polymorphic relationship: An image poll has many votes
-        public function votes()
-        {
-            return $this->morphMany(vote::class, 'pollable');
-        }
+    protected $fillable=['user_id','title','description','method','options','vote_per_ip','require_names','other_option_vote','other_option_results'];
+
+
 }

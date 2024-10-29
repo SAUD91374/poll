@@ -46,7 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/edit_poll/{pollType}/{id}', [PollController::class, 'edit_Poll']);
     Route::put('/update_poll/{pollType}/{id}', [PollController::class, 'update_Poll']);
 
-
+    Route::get('/NotFound',function(){
+        return Inertia::render('not_found');
+    });
 });
 
 require __DIR__ . '/auth.php';

@@ -8,10 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class multiplechoice extends Model
 {
     use HasFactory;
-    protected $fillable=['title','method','description','layout','images','images_list','vote_per_ip','require_names','other_option_vote','other_option_results'];
-        // Polymorphic relationship: An image poll has many votes
-        public function votes()
-        {
-            return $this->morphMany(vote::class, 'pollable');
-        }
+    protected $fillable=['user_id','title','method','description','layout','images','images_list','vote_per_ip','require_names','other_option_vote','other_option_results'];
+
 }

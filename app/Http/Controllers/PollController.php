@@ -10,6 +10,7 @@ use App\Models\poll;
 use App\Models\ranking;
 use App\Models\vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PollController extends Controller
@@ -17,6 +18,7 @@ class PollController extends Controller
 
     public function index()
     {
+
         return Inertia::render('poll/home');
     }
     //poll creation pages
@@ -36,43 +38,59 @@ class PollController extends Controller
     // polls render function
     public function vote_Page()
     {
-        $votes = vote::select('title', 'selectedOption', 'votes')->get();
-
-        $ranking_polls = ranking::all();
-        // dd($ranking_polls);
-        return Inertia::render('poll/vote_page', [
-            'rpolls' => $ranking_polls,
-            'votes' => $votes,
-        ]);
+        if (ranking::where('user_id', auth()->id())->exists()) {
+            $user = Auth::user()->name;
+            $votes = vote::select('title', 'selectedOption', 'votes')->get();
+            $ranking_polls = ranking::where('user_id', auth()->id())->get();
+            // dd($ranking_polls);
+            return Inertia::render('poll/vote_page', [
+                'rpolls' => $ranking_polls,
+                'votes' => $votes,
+                'user' => $user,
+            ]);
+        } else {
+            return Inertia::render('not_found');
+        }
     }
 
     public function images_Vote_Page()
     {
-        // Fetch votes from the database
-        $votes = vote::select('title', 'selectedOption', 'votes')->get();
-        // Calculate total votes
-        $totalvotes = $votes->sum('votes');
-        $polls = poll::all();
-        return Inertia::render('poll/images_vote_page', [
-            'polls' => $polls,
-            'votes' => $votes,
-            'totalvotes' => $totalvotes,
-        ]);
+        if (poll::where('user_id', auth()->id())->exists()) {
+
+            // Fetch votes from the database
+            $votes = vote::select('title', 'selectedOption', 'votes')->get();
+            // Calculate total votes
+            $user = Auth::user()->name;
+            $polls = poll::where('user_id', auth()->id())->get();
+            dd($polls);
+            return Inertia::render('poll/images_vote_page', [
+                'polls' => $polls,
+                'votes' => $votes,
+                'user' => $user,
+            ]);
+        } else {
+            return Inertia::render('not_found');
+        }
     }
 
     public function multiple_Vote_Page()
     {
-        $votes = vote::select('title', 'selectedOption', 'votes')->get();
-        // Calculate total votes
-        $totalvotes = $votes->sum('votes');
+        if (multiplechoice::where('user_id', auth()->id())->exists()) {
 
-        $multiple = multiplechoice::all();
-        // dd($multiple);
-        return Inertia::render('poll/multiple_vote_page', [
-            'multiple' => $multiple,
-            'votes' => $votes,
-            'totalvotes' => $totalvotes,
-        ]);
+            $votes = vote::select('title', 'selectedOption', 'votes')->get();
+            // Calculate total votes
+            $user = Auth::user()->name;
+
+            $multiple = multiplechoice::where('user_id', auth()->id())->get();
+            // dd($multiple);
+            return Inertia::render('poll/multiple_vote_page', [
+                'multiple' => $multiple,
+                'votes' => $votes,
+                'user' => $user,
+            ]);
+        } else {
+            return Inertia::render('not_found');
+        }
     }
     //image poll store function
     public function poll_Submit(PollRequest $request)
@@ -94,6 +112,7 @@ class PollController extends Controller
             'require_names' => $request->require_names,
             'other_option_vote' => $request->other_option_vote,
             'other_option_results' => $request->other_option_results,
+            'user_id' => auth()->id(),
         ];
         // dd($pollinfo);
         poll::create($pollinfo);
@@ -156,6 +175,7 @@ class PollController extends Controller
             'layout' => $layout,
             'images' => json_encode($imageNames),  // for grid layout
             'images_list' => json_encode($img_list), // for list layout
+            'user_id' => auth()->id(),
         ];
 
         multiplechoice::create($pollinfo);
@@ -175,7 +195,9 @@ class PollController extends Controller
             'require_names' => $request->require_names,
             'other_option_vote' => $request->other_option_vote,
             'other_option_results' => $request->other_option_results,
+            'user_id' => auth()->id(),
         ];
+
         ranking::create($pollinfo);
         return redirect('/vote_page');
     }
@@ -221,31 +243,45 @@ class PollController extends Controller
 
     public function edit_Poll($pollType, $id)
     {
-        switch ($pollType) {
-            case 'imagepoll':
-                $imagepoll = poll::where('id', $id)->get();
-                return Inertia::render('editpolls/edit_poll', [
-                    'imagepoll' => $imagepoll,
-                ]);
+        // $userId = auth()->id();
+        // if (
+        //     multiplechoice::where('user_id', $userId)->exists() ||
+        //     poll::where('user_id', $userId)->exists() ||
+        //     ranking::where('user_id', $userId)->exists()
+        // ) {
 
-            case 'multiplepoll':
-                $multiplepoll = multiplechoice::where('id', $id)->get();
-                return Inertia::render('editpolls/edit_image_poll', [
-                    'multiplepoll' => $multiplepoll,
-                ]);
+            switch ($pollType) {
+                case 'imagepoll':
+                    $imagepoll = poll::where('id', $id)
+                        ->where('user_id', auth()->id())->get();
+                    return Inertia::render('editpolls/edit_poll', [
+                        'imagepoll' => $imagepoll,
+                    ]);
 
-            case 'ranking':
-                $rankingpoll = ranking::where('id', $id)->get();
+                case 'multiplepoll':
+                    $multiplepoll = multiplechoice::where('id', $id)
+                        ->where('user_id', auth()->id())->get();
+                    return Inertia::render('editpolls/edit_image_poll', [
+                        'multiplepoll' => $multiplepoll,
+                    ]);
 
-                return Inertia::render('editpolls/edit_ranking_poll', [
-                    'rankingpoll' => $rankingpoll,
-                ]);
+                case 'ranking':
+                    $rankingpoll = ranking::where('id', $id)
+                        ->where('user_id', auth()->id())->get();
 
-            default:
-                abort(404, 'Poll type not found');
+                    return Inertia::render('editpolls/edit_ranking_poll', [
+                        'rankingpoll' => $rankingpoll,
+                    ]);
+
+                default:
+                    abort(404, 'Poll type not found');
+            }
         }
+        // else
+        //     return Inertia::render('not_found');
 
-    }
+
+
     public function update_Poll($pollType, $id, Request $request)
     {
         dd($request->all());

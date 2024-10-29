@@ -1,5 +1,5 @@
 <template>
-    <main class="font-rajdhani max-w-screen-lg mx-auto p-2">
+    <main class="font-rajdhani max-w-screen-md mx-auto p-2">
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h3 class="text-4xl sm:text-5xl text-[#4363EC] font-semibold">
                 Create a Poll
@@ -385,7 +385,7 @@ const form = useForm(
         description: "",
         layout: "grid",
         method: "multiplechoice",
-        vote_per_ip: "Off",
+        vote_per_ip: 'On',
         require_names: "Off",
         other_option_vote: "Off",
         other_option_results: "Off",
