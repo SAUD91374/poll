@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class vote extends Model
 {
     use HasFactory;
-    protected $fillable=['name','ip_address','poll_name','title','selectedOption','votes'];
+    protected $fillable=['ip_address','poll_name','title','selectedOption','votes'];
 
 }
