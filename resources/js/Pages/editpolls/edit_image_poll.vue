@@ -394,14 +394,12 @@ const form = useForm({
     title: props.multiplepoll[0].title,
     description: props.multiplepoll[0].description,
     layout: props.multiplepoll[0].layout,
-    method: "multiplechoice",
+    method: "multiplepoll",
     vote_per_ip: props.multiplepoll[0]?.vote_per_ip || "off",
     require_names: props.multiplepoll[0]?.require_names || "off",
     other_option_vote: props.multiplepoll[0]?.other_option_vote || "off",
     other_option_results: props.multiplepoll[0]?.other_option_results || "off",
-    images: image.value.map((img) => ({
-        src: img,
-    })),
+    images: image
 });
 
 const loading = ref(false);
@@ -415,7 +413,20 @@ function submit(pollType, id) {
     loading.value = true;
 
     // Submit the form
-    router.put(`/update_poll/${pollType}/${id}`, form, {
+    router.post(`/update_poll/${pollType}/${id}`, 
+    {
+        _method: 'put',
+        title: form.title,
+        description: form.description,
+        method: form.method,
+        layout: form.layout,
+        vote_per_ip: form.vote_per_ip,
+        require_names: form.require_names,
+        other_option_vote: form.other_option_vote,
+        other_option_results: form.other_option_results,
+        images: form.images,
+
+    }, {
         onFinish: () => {
             loading.value = false; // Turn off loading after completion
         },

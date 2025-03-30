@@ -11,7 +11,7 @@
         <button
             type="button"
             @click="resetForm"
-            class="rounded-full px-4 py-2 shadow-md bg-[#4363EC] text-white font-semibold ring-1 ring-transparent transition hover:bg-gray-100 hover:text-[#4363EC] hover:ring-[#4363EC] focus:outline-none focus-visible:ring-[#4363EC] dark:bg-[#4363EC] dark:hover:bg-[#4363EC] dark:focus-visible:ring-[#4363EC]"
+            class="rounded-full px-4 py-2 shadow-md bg-[#4363EC] text-white font-semibold ring-1 ring-transparent transition hover:bg-gray-100 hover:text-[#4363EC] hover:ring-[#4363EC] focus:outline-none focus-visible:ring-[#4363EC]"
         >
             Reset
         </button>

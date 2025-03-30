@@ -11,6 +11,7 @@ use App\Models\ranking;
 use App\Models\vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PollController extends Controller
@@ -329,60 +330,93 @@ class PollController extends Controller
 
     public function updateMultiplePoll($id, Request $request)
     {
-        dd($request->all());
-        // Find the poll by ID
-        $poll = multiplechoice::findOrFail($id);
+        try {
+            // Print method value for debugging
+            // dd($request->method);
 
-        $imageNames = [];
-        $img_list = [];
+            // Find the poll by ID
+            $poll = multiplechoice::findOrFail($id);
 
-        // Determine the layout type
-        $layout = $request->input('layout');
+            $imageNames = [];
+            $img_list = [];
 
-        // Check for grid layout
-        if ($layout === 'grid') {
-            foreach ($request->input('images') as $index => $file) {
-                if ($request->hasFile("images.$index.file")) {
-                    $image = $request->file("images.$index.file");
-                    $imageName = time() . '-' . $image->getClientOriginalName();
-                    $image->move(public_path('photos'), $imageName);
-                    $imageNames[] = $imageName;
+            // Determine the layout type
+            $layout = $request->input('layout');
+
+            // Get existing images based on layout
+            $existingImages = $layout === 'grid' ? json_decode($poll->images, true) ?? [] : [];
+            $existingListImages = $layout === 'list' ? json_decode($poll->images_list, true) ?? [] : [];
+
+            // Check for grid layout
+            if ($layout === 'grid') {
+                foreach ($request->input('images') as $index => $file) {
+                    if ($request->hasFile("images.$index.file")) {
+                        // Handle new image upload
+                        $image = $request->file("images.$index.file");
+                        $imageName = time() . '-' . $image->getClientOriginalName();
+                        $image->move(public_path('photos'), $imageName);
+                        $imageNames[] = $imageName;
+                    } else {
+                        // Keep existing image if no new file is uploaded
+                        if (isset($existingImages[$index])) {
+                            $imageNames[] = $existingImages[$index];
+                        }
+                    }
+                }
+            } elseif ($layout === 'list') {
+                foreach ($request->input('images') as $index => $imageData) {
+                    $title = $imageData['title'] ?? '';
+                    $description = $imageData['description'] ?? '';
+                    
+                    if ($request->hasFile("images.$index.file")) {
+                        // Handle new image upload
+                        $image = $request->file("images.$index.file");
+                        $imageName = time() . '-' . $image->getClientOriginalName();
+                        $image->move(public_path('photos'), $imageName);
+
+                        // Store image details in img_list
+                        $img_list[] = [
+                            'image' => $imageName,
+                            'title' => $title,
+                            'description' => $description,
+                        ];
+                    } else {
+                        // Keep existing image if no new file is uploaded
+                        if (isset($existingListImages[$index])) {
+                            $existingImage = $existingListImages[$index];
+                            $img_list[] = [
+                                'image' => $existingImage['image'],
+                                'title' => $title ?: ($existingImage['title'] ?? ''),
+                                'description' => $description ?: ($existingImage['description'] ?? ''),
+                            ];
+                        }
+                    }
                 }
             }
-        } elseif ($layout === 'list') {
-            foreach ($request->input('images') as $index => $imageData) {
-                $title = $imageData['title'] ?? '';
-                $description = $imageData['description'] ?? '';
-                if ($request->hasFile("images.$index.file")) {
-                    $image = $request->file("images.$index.file");
-                    $imageName = time() . '-' . $image->getClientOriginalName();
-                    $image->move(public_path('photos'), $imageName);
 
-                    // Store image details in img_list
-                    $img_list[] = [
-                        'image' => $imageName,
-                        'title' => $title,
-                        'description' => $description,
-                    ];
-                }
-            }
+            // Prepare update data
+            $updateData = [
+                'title' => $request->title,
+                'description' => $request->description,
+                'vote_per_ip' => $request->vote_per_ip,
+                'require_names' => $request->require_names,
+                'other_option_vote' => $request->other_option_vote,
+                'other_option_results' => $request->other_option_results,
+                'layout' => $layout,
+                'images' => json_encode($imageNames),
+                'images_list' => json_encode($img_list),
+            ];
+            // dd($updateData);
+            // Explicitly set the method to a string value (use 'mc' to stay well within any size constraints)
+
+            // Update poll info
+            $poll->update($updateData);
+
+            return redirect("/multiple_vote_page")->with('success', 'Multiple poll updated successfully!');
+        } catch (\Exception $e) {
+            // Log::error('Error updating multiple poll: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating poll: ' . $e->getMessage());
         }
-
-        // Update poll info
-        $poll->update([
-            'title' => $request->title,
-            'method' => $request->method,
-            'description' => $request->description,
-            'vote_per_ip' => $request->vote_per_ip,
-            'require_names' => $request->require_names,
-            'other_option_vote' => $request->other_option_vote,
-            'other_option_results' => $request->other_option_results,
-            'layout' => $layout,
-            'images' => json_encode($imageNames),  // for grid layout
-            'images_list' => json_encode($img_list), // for list layout
-        ]);
-
-        return redirect("/multiple_vote_page")->with('success', 'Multiple poll updated successfully!');
     }
 
     public function updateRankingPoll($id, Request $request)
