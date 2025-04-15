@@ -1,9 +1,9 @@
 <template>
-    <main class="font-rajdhani max-w-screen-md mx-auto">
+    <main class="font-rajdhani max-w-screen-xl mx-auto ">
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <div class="space-y-6">
                 <!-- Form header and description -->
-                <div>
+                <div class=" px-10">
                     <h3
                         class="text-3xl sm:text-5xl text-[#4363EC] font-semibold"
                     >
@@ -31,13 +31,13 @@
                                 v-model="form.title"
                                 @input="clearError('title')"
                                 class="border-l-[3px] border-0 border-[#4363EC] rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                :class="{ 'border-red-500': errors.title }"
+                                :class="{ 'border-red-500': errors.title || validationErrors.title }"
                                 placeholder="Your title here"
                             />
                             <span
-                                v-if="props.errors.title"
+                                v-if="props.errors.title || validationErrors.title"
                                 class="text-red-600 text-sm"
-                                >{{ props.errors.title }}</span
+                                >{{ props.errors.title || validationErrors.title }}</span
                             >
                         </div>
 
@@ -53,15 +53,15 @@
                                 id="description"
                                 class="border-l-[3px] border-0 border-[#4363EC] rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 :class="{
-                                    'border-red-500': errors.description,
+                                    'border-red-500': errors.description || validationErrors.description,
                                 }"
                                 placeholder="Add a description here"
                                 @input="clearError('description')"
                             ></textarea>
                             <span
-                                v-if="props.errors.description"
+                                v-if="props.errors.description || validationErrors.description"
                                 class="text-red-500 text-sm"
-                                >{{ props.errors.description }}</span
+                                >{{ props.errors.description || validationErrors.description }}</span
                             >
                         </div>
                         <div v-if="previewImage" class="relative mt-3">
@@ -174,7 +174,7 @@
                                         class="border-l-[3px] border-0 border-[#4363EC] rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
                                         :class="{
                                             'border-red-600':
-                                                errors[`options.${index}`],
+                                                errors[`options.${index}`] || validationErrors.options,
                                         }"
                                         :placeholder="`Option ${index + 1}`"
                                         v-model="form.options[index]"
@@ -188,10 +188,10 @@
                                         &#10005;
                                     </span>
                                     <span
-                                        v-if="errors[`options.${index}`]"
+                                        v-if="errors[`options.${index}`] || validationErrors.options"
                                         class="text-red-500 text-sm"
                                     >
-                                        {{ errors[`options.${index}`] }}
+                                        {{ errors[`options.${index}`] || validationErrors.options }}
                                     </span>
                                 </div>
 
@@ -203,15 +203,16 @@
                                     <input
                                         type="text"
                                         class="border-l-[3px] border-0 border-[#4363EC] rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                        :class="{ 'border-red-500': errors.others || validationErrors.others }"
                                         placeholder="Other"
                                         v-model="form.others"
                                         @input="clearError('other')"
                                     />
                                     <span
-                                        v-if="errors.others"
+                                        v-if="errors.others || validationErrors.others"
                                         class="text-red-500 text-sm"
                                     >
-                                        {{ errors.other }}
+                                        {{ errors.others || validationErrors.others }}
                                     </span>
                                 </div>
                             </div>
@@ -383,6 +384,75 @@ const fileInput = ref(null); // Add a ref for the file input
 const isImageUploaded = ref(false); //for check image is uploaded then the button change to remove
 const showAdvancedSettings = ref(false); // New reactive property for advanced settings visibility
 
+// Add validation rules
+const validationRules = {
+    title: (value) => {
+        if (!value) return 'Title is required';
+        if (value.length < 3) return 'Title must be at least 3 characters long';
+        if (value.length > 100) return 'Title must not exceed 100 characters';
+        return '';
+    },
+    description: (value) => {
+        if (value && value.length > 500) return 'Description must not exceed 500 characters';
+        return '';
+    },
+    options: (options) => {
+        if (!options || options.length < 2) return 'At least 2 options are required';
+        for (let i = 0; i < options.length; i++) {
+            if (!options[i].trim()) return `Option ${i + 1} cannot be empty`;
+            if (options[i].length > 100) return `Option ${i + 1} must not exceed 100 characters`;
+        }
+        return '';
+    },
+    others: (value) => {
+        if (value && value.length > 100) return 'Other option must not exceed 100 characters';
+        return '';
+    }
+};
+
+// Add validation state
+const validationErrors = ref({});
+
+// Validation function
+const validateForm = () => {
+    validationErrors.value = {};
+    let isValid = true;
+
+    // Validate title
+    const titleError = validationRules.title(form.title);
+    if (titleError) {
+        validationErrors.value.title = titleError;
+        isValid = false;
+    }
+
+    // Validate description if shown
+    if (showDescription.value) {
+        const descriptionError = validationRules.description(form.description);
+        if (descriptionError) {
+            validationErrors.value.description = descriptionError;
+            isValid = false;
+        }
+    }
+
+    // Validate options
+    const optionsError = validationRules.options(form.options);
+    if (optionsError) {
+        validationErrors.value.options = optionsError;
+        isValid = false;
+    }
+
+    // Validate others if enabled
+    if (other.value) {
+        const othersError = validationRules.others(form.others);
+        if (othersError) {
+            validationErrors.value.others = othersError;
+            isValid = false;
+        }
+    }
+
+    return isValid;
+};
+
 function addOption() {
     form.options.push("");
 }
@@ -404,13 +474,17 @@ function deleteOption(index) {
 }
 
 function submit() {
+    if (!validateForm()) {
+        return;
+    }
+
     loading.value = true;
     console.log(form);
 
     // Submit the form
     router.post("/pollsubmit", form, {
         onFinish: () => {
-            loading.value = false; // Turn off loading after completion
+            loading.value = false;
         },
         onSuccess: () => {
             loading.value = false;
@@ -418,15 +492,14 @@ function submit() {
                 icon: "success",
                 title: "Poll created Successfully!!",
                 customClass: {
-                    popup: "text-[#4363EC] rounded-lg shadow-md p-4", // Tailwind classes for background, text, and padding
-                    title: "font-semibold", // Tailwind class for title styling
-                    icon: "text-[#4363EC]", // Tailwind class for icon styling
+                    popup: "text-[#4363EC] rounded-lg shadow-md p-4",
+                    title: "font-semibold",
+                    icon: "text-[#4363EC]",
                 },
             });
-            // Redirect or show success message if necessary
         },
         onError: () => {
-            loading.value = false; // Turn off loading if there's an error
+            loading.value = false;
         },
     });
 }
@@ -470,6 +543,9 @@ const props = defineProps({
 const clearError = (field) => {
     if (props.errors[field]) {
         delete props.errors[field];
+    }
+    if (validationErrors.value[field]) {
+        delete validationErrors.value[field];
     }
 };
 // Method to reset the form

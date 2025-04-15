@@ -1,5 +1,18 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
+import { computed } from 'vue';
+
+const props = defineProps({
+    title: {
+        type: String,
+        default: 'Welcome to Poll'
+    }
+});
+const isRegisterPage = computed(() => route().current('register'));
+const isLoginPage = computed(() => route().current('login'));
+const date = new Date();
+const currentYear = date.getFullYear();
+// const currentYear = computed(() => getCurrentYear());
 </script>
 
 <template>
@@ -18,7 +31,7 @@ import { Link } from "@inertiajs/vue3";
             <div class="flex ">
 
                 <!-- Login Button -->
-                <div v-if="route().current('register')">
+                <div v-if="isRegisterPage">
                     <span class="text-[#4363EC] font-semibold text-4xl block">Create a free account</span>
                     <div class="text-center">
                     <p class="text-xl text-gray-600">or</p>
@@ -32,7 +45,7 @@ import { Link } from "@inertiajs/vue3";
                 </div>
 
                 <!-- Register Button -->
-                <div v-if="route().current('login')">
+                <div v-if="isLoginPage">
                     <span class="text-[#4363EC] font-semibold text-4xl">Login in to your account</span>
                     <div class="text-center">
                     <p class="text-xl text-gray-600">or</p>
@@ -54,6 +67,10 @@ import { Link } from "@inertiajs/vue3";
         >
             <!-- Slot for additional content -->
             <slot />
+        </div>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+            <p>© {{ currentYear }} Poll. All rights reserved.</p>
         </div>
     </div>
 </template>

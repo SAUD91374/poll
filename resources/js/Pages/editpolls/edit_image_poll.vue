@@ -375,6 +375,8 @@ import { ref, defineProps, reactive, watch } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { checks } from "@/Components/watchmethod";
 import Pagecontent from "@/Components/pagecontent.vue";
+import Swal from 'sweetalert2';
+
 const props = defineProps({
     errors: {
         type: Object,
@@ -405,8 +407,6 @@ const form = useForm({
 const loading = ref(false);
 const errors = ref({}); // Error object to hold validation errors
 const previewImage = ref(null);
-// const images = ref(JSON.parse(props.multiplepoll[0].images));
-// const list = ref(JSON.parse(props.multiplepoll[0].images_list));
 
 const index = ref(0);
 function submit(pollType, id) {
@@ -425,17 +425,38 @@ function submit(pollType, id) {
         other_option_vote: form.other_option_vote,
         other_option_results: form.other_option_results,
         images: form.images,
-
     }, {
         onFinish: () => {
             loading.value = false; // Turn off loading after completion
         },
         onSuccess: () => {
             loading.value = false;
-            // Redirect or show success message if necessary
+            
+            // Show SweetAlert success message
+            Swal.fire({
+                title: 'Success!',
+                text: 'Poll updated successfully',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4363EC'
+            }).then(() => {
+                // Use Inertia router for SPA navigation instead of window.location
+                router.visit('/multiple_vote_page');
+            });
         },
-        onError: () => {
+        onError: (errors) => {
             loading.value = false; // Turn off loading if there's an error
+            
+            // Show error message if needed
+            if (Object.keys(errors).length > 0) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please check the form for errors',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#4363EC'
+                });
+            }
         },
     });
 }
